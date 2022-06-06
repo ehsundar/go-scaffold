@@ -6,5 +6,10 @@ import (
 )
 
 func RegisterRoutes(r *mux.Router, service Scaffold) {
-	r.HandleFunc("/", Invoker[CreateRequest, CreateResponse](service.Create)).Methods(http.MethodPost)
+	r.HandleFunc("/", Invoke[CreateRequest, CreateResponse](service.Create)).
+		Methods(http.MethodPost)
+	r.HandleFunc("/{id:[0-9]+}/", Invoke[RetrieveRequest, RetrieveResponse](service.Retrieve)).
+		Methods(http.MethodGet)
+	r.HandleFunc("/{id:[0-9]+}/", Invoke[DeleteRequest, DeleteResponse](service.Delete)).
+		Methods(http.MethodDelete)
 }

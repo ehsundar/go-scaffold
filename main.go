@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable")
+	psqlconn := fmt.Sprintf("host=localhost port=5432 user=postgres password=mysecretpassword dbname=scaffold sslmode=disable")
 	db, err := sql.Open("postgres", psqlconn)
 	err = db.Ping()
 	if err != nil {

@@ -16,7 +16,7 @@ func NewPostgresStorage(db *sql.DB) Storage {
 }
 
 func (s *postgresStorage) Select(ctx context.Context, ID int) (*Item, error) {
-	row := s.db.QueryRowContext(ctx, "select * from items where id=?", ID)
+	row := s.db.QueryRowContext(ctx, "select id, text from items where id=$1", ID)
 	if row.Err() != nil {
 		return nil, row.Err()
 	}
@@ -30,16 +30,35 @@ func (s *postgresStorage) Select(ctx context.Context, ID int) (*Item, error) {
 }
 
 func (s *postgresStorage) Insert(ctx context.Context, item *Item) (*Item, error) {
-	//TODO implement me
-	panic("implement me")
+	row := s.db.QueryRowContext(ctx, "insert into items(text) values ($1) returning id, text", item.Text)
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	i := Item{}
+	err := row.Scan(&i.ID, &i.Text)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
-func (s *postgresStorage) Update(ctx context.Context, item *Item) error {
-	//TODO implement me
-	panic("implement me")
+func (s *postgresStorage) Update(ctx context.Context, item *Item) (*Item, error) {
+	row := s.db.QueryRowContext(ctx, "update items set text=$2 where id=$1 returning id, text",
+		item.ID, item.Text)
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	i := Item{}
+	err := row.Scan(&i.ID, &i.Text)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
 func (s *postgresStorage) Delete(ctx context.Context, ID int) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := s.db.ExecContext(ctx, "delete from items where id=$1", ID)
+	return err
 }
